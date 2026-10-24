@@ -4,15 +4,14 @@ import type { ChatWindowProps } from "../types";
 
 export default function ChatWindow({
   chatName,
-  outgoingMessages,
+  messages,
   onSend,
 }: ChatWindowProps) {
   const [text, setText] = useState("");
 
-  const allMessages = outgoingMessages.map((m) => ({
-    ...m,
-    isOwn: true as const,
-  }));
+  const sortedMessages = [...messages].sort(
+    (a, b) => a.timestamp - b.timestamp,
+  );
 
   const handleSend = () => {
     if (!text.trim()) return;
@@ -26,12 +25,12 @@ export default function ChatWindow({
         <h3>{chatName}</h3>
       </div>
       <div className="messages">
-        {allMessages.map((msg) => (
+        {sortedMessages.map((msg) => (
           <MessageBubble
             key={msg.id}
             text={msg.body}
             timestamp={msg.timestamp}
-            isOwn={msg.isOwn}
+            isOutgoing={msg.isOutgoing}
           />
         ))}
       </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { ApiSettingsProps } from "../types";
 
-const STORAGE_KEY = "greenapi_settings";
+const STORAGE_KEY_API = "greenapi_settings";
 
 export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
   const [idInstance, setIdInstance] = useState("");
@@ -9,7 +9,7 @@ export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY_API);
     if (saved) {
       const { idInstance: id, apiTokenInstance: token } = JSON.parse(saved);
       setIdInstance(id);
@@ -24,7 +24,7 @@ export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
       return;
     }
     localStorage.setItem(
-      STORAGE_KEY,
+      STORAGE_KEY_API,
       JSON.stringify({ idInstance: id, apiTokenInstance }),
     );
     setHasChanges(false);

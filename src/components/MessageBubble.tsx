@@ -3,7 +3,7 @@ import type { MessageBubbleProps } from "../types";
 export default function MessageBubble({
   text,
   timestamp,
-  isOwn,
+  isOutgoing,
 }: MessageBubbleProps) {
   const time = new Date(timestamp * 1000).toLocaleTimeString("ru-RU", {
     hour: "2-digit",
@@ -11,7 +11,7 @@ export default function MessageBubble({
   });
 
   return (
-    <div className={`message ${isOwn ? "own" : "other"}`}>
+    <div className={`message ${isOutgoing ? "outgoing" : "incoming"}`}>
       <div className="message-bubble">
         <p>{text}</p>
         <span className="message-time">{time}</span>

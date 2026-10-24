@@ -304,11 +304,11 @@ body {
   display: flex;
 }
 
-.message.own {
+.message.outgoing {
   justify-content: flex-end;
 }
 
-.message.other {
+.message.incoming {
   justify-content: flex-start;
 }
 
@@ -319,13 +319,13 @@ body {
   position: relative;
 }
 
-.message.own .message-bubble {
+.message.outgoing .message-bubble {
   background: linear-gradient(90deg, #6069e3, #844cb9);
   color: white;
   border-bottom-right-radius: 4px;
 }
 
-.message.other .message-bubble {
+.message.incoming .message-bubble {
   background: var(--background-secondary);
   color: var(--text-primary);
   border-bottom-left-radius: 4px;

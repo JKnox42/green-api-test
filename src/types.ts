@@ -1,11 +1,11 @@
-export interface OutgoingMessage {
+export interface Message {
   id: number;
   chatId: string;
   type: "message" | "notification";
   timestamp: number;
   status: string;
   body: string;
-  isOwn?: boolean;
+  isOutgoing: boolean;
 }
 
 export interface Chat {
@@ -30,14 +30,14 @@ export interface ChatListProps {
 
 export interface ChatWindowProps {
   chatName: string;
-  outgoingMessages: OutgoingMessage[];
+  messages: Message[];
   onSend: (message: string) => void;
 }
 
 export interface MessageBubbleProps {
   text: string;
   timestamp: number;
-  isOwn: boolean;
+  isOutgoing: boolean;
 }
 
 export interface NavigationProps {
