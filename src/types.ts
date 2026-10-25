@@ -3,7 +3,6 @@ export type View = "chats" | "settings";
 export interface Chat {
   id: string;
   maxId: string;
-  waChatId: string;
   name: string;
   type: "remote" | "group" | "broadcast";
   lastMessage?: {

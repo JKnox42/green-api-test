@@ -13,6 +13,26 @@ const STORAGE_KEY_API = "greenapi_settings";
 const STORAGE_KEY_CHATS = "greenapi_chats";
 const STORAGE_KEY_MESSAGES = "greenapi_messages";
 
+function getSettings() {
+  const saved = localStorage.getItem(STORAGE_KEY_API);
+  if (!saved) return null;
+  return JSON.parse(saved);
+}
+
+function updateLastMessage(
+  chatId: string,
+  body: string,
+  timestamp: number,
+  senderName: string,
+) {
+  return (prev: Chat[]) =>
+    prev.map((c) =>
+      c.id === chatId
+        ? { ...c, lastMessage: { body, timestamp, senderName } }
+        : c,
+    );
+}
+
 export default function App() {
   const [activeView, setActiveView] = useState<View>("chats");
   const [activeSetting, setActiveSetting] = useState("api");
@@ -22,7 +42,6 @@ export default function App() {
     return JSON.parse(saved).map((c: any) => ({
       id: c.id,
       maxId: c.maxId,
-      waChatId: c.waChatId || "",
       name: c.name,
       type: c.type,
       lastMessage: c.lastMessage,
@@ -67,9 +86,9 @@ export default function App() {
   }, [messagesByChat]);
 
   useEffect(() => {
-    const settings = localStorage.getItem(STORAGE_KEY_API);
+    const settings = getSettings();
     if (!settings) return;
-    const { idInstance, apiTokenInstance } = JSON.parse(settings);
+    const { idInstance, apiTokenInstance } = settings;
 
     const interval = setInterval(async () => {
       try {
@@ -95,9 +114,8 @@ export default function App() {
 
         const body = notification.body;
         const maxId = body.senderData.chatId;
-        const phone = body.senderData.phone;
-        const waChatId = phone ? `${phone}@c.us` : "";
-        const chatId = `${maxId}@c.us`;
+        const phone = body.senderData.senderPhoneNumber;
+        const id = `${phone}@c.us`;
         const timestamp = body.timestamp;
         const messageText = body.messageData.textMessageData?.textMessage || "";
 
@@ -105,9 +123,8 @@ export default function App() {
 
         if (!chat) {
           chat = {
-            id: chatId,
+            id,
             maxId,
-            waChatId,
             name: body.senderData.senderName || "Неизвестный",
             type: "remote",
           };
@@ -116,7 +133,7 @@ export default function App() {
 
         const incomingMessage: Message = {
           id: Date.now(),
-          chatId,
+          chatId: id,
           type: "message",
           timestamp,
           status: "received",
@@ -126,9 +143,20 @@ export default function App() {
 
         setMessagesByChat((prev) => ({
           ...prev,
-          [chatId]: [...(prev[chatId] || []), incomingMessage],
+          [id]: [...(prev[id] || []), incomingMessage],
         }));
-      } catch {}
+
+        setChats(
+          updateLastMessage(
+            id,
+            messageText,
+            timestamp,
+            body.senderData.senderName || "",
+          ),
+        );
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
     }, 1000);
 
     return () => clearInterval(interval);
@@ -141,12 +169,14 @@ export default function App() {
     : "";
 
   const handleNewChat = async (phone: string) => {
-    const settings = localStorage.getItem(STORAGE_KEY_API);
+    const settings = getSettings();
     if (!settings) {
       alert("Сначала настройте API в настройках");
       return;
     }
-    const { idInstance, apiTokenInstance } = JSON.parse(settings);
+    const { idInstance, apiTokenInstance } = settings;
+
+    const id = `${phone}@c.us`;
 
     let maxId: string;
     try {
@@ -164,52 +194,38 @@ export default function App() {
       return;
     }
 
-    const chatId = `${maxId}@c.us`;
-    const waChatId = `${phone}@c.us`;
-
     const existing = chatsRef.current.find((c) => c.maxId === maxId);
     if (existing) {
       setActiveChatId(existing.id);
       return;
     }
 
-    const newChat: Chat = {
-      id: chatId,
-      maxId,
-      waChatId,
-      name: phone,
-      type: "remote",
-    };
-    setChats((prev) => [newChat, ...prev]);
-    setActiveChatId(chatId);
+    setChats((prev) => [...prev, { id, maxId, name: phone, type: "remote" }]);
+    setActiveChatId(id);
   };
 
   const handleSend = async (message: string) => {
     if (!activeChatId) return;
 
-    const chat = chatsRef.current.find((c) => c.id === activeChatId);
-    if (!chat) return;
-
-    const settings = localStorage.getItem(STORAGE_KEY_API);
+    const settings = getSettings();
     if (!settings) {
       alert("Сначала настройте API в настройках");
       return;
     }
-    const { idInstance, apiTokenInstance } = JSON.parse(settings);
-
-    const sendChatId = chat.waChatId || activeChatId;
+    const { idInstance, apiTokenInstance } = settings;
 
     try {
       await axios.post(
         `https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiTokenInstance}`,
-        { chatId: sendChatId, message },
+        { chatId: activeChatId, message },
       );
 
+      const timestamp = Math.floor(Date.now() / 1000);
       const newMessage: Message = {
         id: Date.now(),
         chatId: activeChatId,
         type: "message",
-        timestamp: Math.floor(Date.now() / 1000),
+        timestamp,
         status: "sent",
         body: message,
         isOutgoing: true,
@@ -218,6 +234,8 @@ export default function App() {
         ...prev,
         [activeChatId]: [...(prev[activeChatId] || []), newMessage],
       }));
+
+      setChats(updateLastMessage(activeChatId, message, timestamp, "Вы"));
     } catch {
       alert("Ошибка отправки сообщения");
     }

@@ -27,9 +27,8 @@ export default function NewChatDialog({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>Новый чат</h2>
         <div className="form-group">
-          <label>Номер телефона</label>
+          <label>Введите номер телефона</label>
           <input
             type="tel"
             value={phone}

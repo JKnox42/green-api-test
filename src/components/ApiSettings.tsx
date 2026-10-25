@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 const STORAGE_KEY_API = "greenapi_settings";
+const API_URL = "https://api.green-api.com";
 
-export default function ApiSettings({ activeSetting }: { activeSetting: string }) {
+export default function ApiSettings({
+  activeSetting,
+}: {
+  activeSetting: string;
+}) {
   const [idInstance, setIdInstance] = useState("");
   const [apiTokenInstance, setApiTokenInstance] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY_API);
@@ -25,6 +32,35 @@ export default function ApiSettings({ activeSetting }: { activeSetting: string }
       STORAGE_KEY_API,
       JSON.stringify({ idInstance: id, apiTokenInstance }),
     );
+    alert("Настройки сохранены");
+  };
+
+  const handleEnableIncoming = async () => {
+    const id = Number(idInstance);
+    if (!id || !apiTokenInstance) {
+      alert("Сначала настройте API в настройках");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(
+        `${API_URL}/waInstance${id}/setSettings/${apiTokenInstance}`,
+        {
+          webhookUrl: "",
+          incomingWebhook: "yes",
+          outgoingWebhook: "yes",
+          stateWebhook: "yes",
+        },
+      );
+      alert(
+        "Прием входящих сообщений включен. Рекомендуется перезапустить инстанс в личном кабинете GREEN-API",
+      );
+    } catch {
+      alert("Ошибка при включении приема входящих");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (activeSetting !== "api") return null;
@@ -41,7 +77,6 @@ export default function ApiSettings({ activeSetting }: { activeSetting: string }
             type="number"
             value={idInstance}
             onChange={(e) => setIdInstance(e.target.value)}
-            placeholder="Например: 1100123456"
           />
         </div>
         <div className="form-group">
@@ -50,11 +85,17 @@ export default function ApiSettings({ activeSetting }: { activeSetting: string }
             type="text"
             value={apiTokenInstance}
             onChange={(e) => setApiTokenInstance(e.target.value)}
-            placeholder="Ваш токен"
           />
         </div>
         <button className="btn-save" onClick={handleSave}>
           Сохранить
+        </button>
+        <button
+          className="btn-save"
+          onClick={handleEnableIncoming}
+          disabled={loading}
+        >
+          {loading ? "Загрузка..." : "Включить прием входящих сообщений"}
         </button>
       </div>
     </div>

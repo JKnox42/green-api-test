@@ -11,17 +11,11 @@ export default function ChatList({
   onSelect: (id: string) => void;
   onCreateNew: () => void;
 }) {
-  const formatLastMessage = (chat: Chat) => {
-    if (!chat.lastMessage) return "";
-    const time = new Date(chat.lastMessage.timestamp * 1000).toLocaleTimeString(
-      "ru-RU",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-      },
-    );
-    return `${chat.lastMessage.senderName}: ${chat.lastMessage.body} • ${time}`;
-  };
+  const formatTime = (timestamp: number) =>
+    new Date(timestamp * 1000).toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
   return (
     <div className="chat-list">
@@ -41,8 +35,15 @@ export default function ChatList({
           >
             <div className="chat-avatar">{chat.name?.[0] || "?"}</div>
             <div className="chat-info">
-              <div className="chat-name">{chat.name}</div>
-              <div className="chat-last">{formatLastMessage(chat)}</div>
+              <div className="chat-name">
+                {chat.name}
+                {chat.lastMessage && (
+                  <span className="chat-time">
+                    {formatTime(chat.lastMessage.timestamp)}
+                  </span>
+                )}
+              </div>
+              <div className="chat-last">{chat.lastMessage?.body || ""}</div>
             </div>
           </div>
         ))}
