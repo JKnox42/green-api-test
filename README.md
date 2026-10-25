@@ -1,75 +1,51 @@
-# React + TypeScript + Vite
+# Переписка в MAX через GREEN-API
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Данное приложение - тестовое задание по отработке связи с мессенджером MAX через сервис GREEN-API. Так как цель - только настройка API, приложение максимально простое (только React + TypeScript + Vite без бэкенда).
 
-Currently, two official plugins are available:
+## Known Issues
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Так как проект тестовый, но в нем есть ряд допущений, который, естественно, не годится для боевого проекта, но в данном случае пришлось пойти на такие уступки. А именно:
 
-## React Compiler
+1. Так как это чистый фронтенд без доступа к бэку, для хранения настроек API, списка чатов и сообщений используется localStorage.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Для тестирования использовался бесплатный инстанс GREEN-API, поэтому кол-во абонентов было ограничено тремя получателями. И так вышло, что все они были созданы через указание номера телефона, а не идентификатора чата, как рекомендуется. Поэтому отправка сообщений происходит через обращение к чату в формате "79876543210@c.us", а прием входящих сообщений - через идентификатор чата. Но в рабочем вариант все, так или иначе, нужно привести к одному формату (использованию идентификатора).
 
-## Expanding the ESLint configuration
+3. Для тестирования лучше вести переписку с другим аккаунтом MAX, а не тем, который был использван для авторизации инстанса - это вызывает путанницу с сообщениями, которые просто попадают в Избранное. При этом исходящие сообщения нормально уходят из приложения в MAX, а вот в обратном направлении - почему-то не принимаются самим GREEN-API.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Начало работы и запуск
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Сначала устанавливаем зависимости через команду:
 
 ```
+npm instal
+```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Далее запускаем через:
 
 ```
+npm run dev
+```
+
+Запущенное приложение можно открыть в браузере по адресу `http://localhost:5173/`
+
+## Первичная настройка
+
+Чтобы начать пользоваться приложением, нужно настроить связь с сервисом GREEN-API. Для этого переходим в настройки в нижнем левом углу.
+
+![Переходим в настройки](img/img_1.jpg)
+
+После этого указываем `idInstance` и `apiTokenInstance`, узнать которые можно в настройках вашего инстанса в личном кабинете GREEN-API. Далее жмем "Сохранить".
+
+![Настройки API](img/img_2.jpg)
+
+Потом жмем на кнопку "Включить прием входящих сообщений" - это настроит нужные параметры инстанса. После этого ОБЯЗАТЕЛЬНО переходим в личный кабинет и перезапускаем инстанс, потому как только после этого применяются изменения (даже при ручной настройке в личном кабинете).
+
+## Создание чата и переписка
+
+Далее создаем новый чат через синий плюсик в верху экрана. Номер телефона нужно указать в формате "79876543210".
+
+![Создание чата](img/img_3.jpg)
+
+После этого можно писать сообщения. Входящие сообщения из мессенджера MAX будут отображаться в чате после приема GREEN-API.
+
+![Содержимое чата](img/img_4.jpg)
