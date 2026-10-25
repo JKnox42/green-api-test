@@ -1,9 +1,12 @@
-import type { NavigationProps } from "../types";
+import type { View } from "../types";
 
 export default function Navigation({
   activeView,
   onChangeView,
-}: NavigationProps) {
+}: {
+  activeView: View;
+  onChangeView: (view: View) => void;
+}) {
   return (
     <nav className="navigation">
       <button

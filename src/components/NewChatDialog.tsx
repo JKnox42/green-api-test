@@ -1,11 +1,14 @@
 import { useState } from "react";
-import type { NewChatDialogProps } from "../types";
 
 export default function NewChatDialog({
   isOpen,
   onClose,
   onCreate,
-}: NewChatDialogProps) {
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (phone: string) => void;
+}) {
   const [phone, setPhone] = useState("");
 
   const handleCreate = () => {

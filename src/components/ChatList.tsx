@@ -1,11 +1,16 @@
-import type { Chat, ChatListProps } from "../types";
+import type { Chat } from "../types";
 
 export default function ChatList({
   chats,
   activeChatId,
   onSelect,
   onCreateNew,
-}: ChatListProps) {
+}: {
+  chats: Chat[];
+  activeChatId: string | null;
+  onSelect: (id: string) => void;
+  onCreateNew: () => void;
+}) {
   const formatLastMessage = (chat: Chat) => {
     if (!chat.lastMessage) return "";
     const time = new Date(chat.lastMessage.timestamp * 1000).toLocaleTimeString(

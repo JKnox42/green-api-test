@@ -1,12 +1,16 @@
 import { useState } from "react";
 import MessageBubble from "./MessageBubble";
-import type { ChatWindowProps } from "../types";
+import type { Message } from "../types";
 
 export default function ChatWindow({
   chatName,
   messages,
   onSend,
-}: ChatWindowProps) {
+}: {
+  chatName: string;
+  messages: Message[];
+  onSend: (message: string) => void;
+}) {
   const [text, setText] = useState("");
 
   const sortedMessages = [...messages].sort(

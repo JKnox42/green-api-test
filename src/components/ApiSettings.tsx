@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import type { ApiSettingsProps } from "../types";
 
 const STORAGE_KEY_API = "greenapi_settings";
 
-export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
+export default function ApiSettings({ activeSetting }: { activeSetting: string }) {
   const [idInstance, setIdInstance] = useState("");
   const [apiTokenInstance, setApiTokenInstance] = useState("");
-  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY_API);
@@ -27,7 +25,6 @@ export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
       STORAGE_KEY_API,
       JSON.stringify({ idInstance: id, apiTokenInstance }),
     );
-    setHasChanges(false);
   };
 
   if (activeSetting !== "api") return null;
@@ -43,10 +40,7 @@ export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
           <input
             type="number"
             value={idInstance}
-            onChange={(e) => {
-              setIdInstance(e.target.value);
-              setHasChanges(true);
-            }}
+            onChange={(e) => setIdInstance(e.target.value)}
             placeholder="Например: 1100123456"
           />
         </div>
@@ -55,18 +49,13 @@ export default function ApiSettings({ activeSetting }: ApiSettingsProps) {
           <input
             type="text"
             value={apiTokenInstance}
-            onChange={(e) => {
-              setApiTokenInstance(e.target.value);
-              setHasChanges(true);
-            }}
+            onChange={(e) => setApiTokenInstance(e.target.value)}
             placeholder="Ваш токен"
           />
         </div>
-        {hasChanges && (
-          <button className="btn-save" onClick={handleSave}>
-            Сохранить
-          </button>
-        )}
+        <button className="btn-save" onClick={handleSave}>
+          Сохранить
+        </button>
       </div>
     </div>
   );

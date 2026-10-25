@@ -1,10 +1,12 @@
-import type { MessageBubbleProps } from "../types";
-
 export default function MessageBubble({
   text,
   timestamp,
   isOutgoing,
-}: MessageBubbleProps) {
+}: {
+  text: string;
+  timestamp: number;
+  isOutgoing: boolean;
+}) {
   const time = new Date(timestamp * 1000).toLocaleTimeString("ru-RU", {
     hour: "2-digit",
     minute: "2-digit",
